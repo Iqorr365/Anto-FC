@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Anto FC</title>
+
+<style>
+body{
+    margin:0;
+    font-family:Arial, sans-serif;
+    background:linear-gradient(180deg,#5e17eb,#ff7b00,#0099ff);
+    color:white;
+    text-align:center;
+}
+
+header{
+    padding:30px;
+    font-size:40px;
+    font-weight:bold;
+}
+
+.container{
+    padding:20px;
+}
+
+.card{
+    background:rgba(0,0,0,0.3);
+    border-radius:20px;
+    padding:20px;
+    margin:15px;
+}
+
+h2{
+    color:#ffd166;
+}
+
+button{
+    background:#ff7b00;
+    color:white;
+    border:none;
+    padding:12px 20px;
+    border-radius:15px;
+    margin:10px;
+    font-size:16px;
+    cursor:pointer;
+}
+
+button:hover{
+    background:#ff9500;
+}
+
+.section{
+    display:none;
+}
+
+.active{
+    display:block;
+}
+</style>
+</head>
+
+<body>
+
+<header>ANTO FC</header>
+
+<div>
+    <button onclick="showSection('home')">Start</button>
+    <button onclick="showSection('squad')">Skład</button>
+    <button onclick="showSection('achievements')">Osiągnięcia</button>
+</div>
+
+<div class="container">
+
+    <div id="home" class="section active">
+        <div class="card">
+            <h2>Rocket League Club</h2>
+            <p>Oficjalna aplikacja Anto FC 🚀</p>
+            <p>Trener: Krzysiek J</p>
+        </div>
+    </div>
+
+    <div id="squad" class="section">
+        <div class="card">
+            <h2>Igo-Star 5 #9</h2>
+            <p>Pozycje: 9 / 7 / 11 / 10 / 1</p>
+            <p>Najwięcej asyst</p>
+        </div>
+
+        <div class="card">
+            <h2>MrAntoniuszek #17</h2>
+            <p>Pozycje: 8 / 9 / 4 / 5 / 1</p>
+            <p>Najwięcej bramek ⚽</p>
+            <p>Najwięcej bramek samobójczych 😆</p>
+        </div>
+    </div>
+
+    <div id="achievements" class="section">
+        <div class="card">
+            <h2>RL Ekstraklasa</h2>
+            <p>1 miejsce:</p>
+            <p>2034/35, 2038/39, 2039/40, 2046/47, 2048/49, 2055/56</p>
+            <p>2 miejsce: 4 razy</p>
+            <p>3 miejsce: 2 razy</p>
+        </div>
+
+        <div class="card">
+            <h2>Puchar Polski</h2>
+            <p>Wygrana: 2031/32, 2036/37</p>
+        </div>
+
+        <div class="card">
+            <h2>Liga Konferencji</h2>
+            <p>Wygrana: 1 raz</p>
+        </div>
+    </div>
+
+</div>
+
+<script>
+function showSection(id){
+    document.querySelectorAll('.section').forEach(section=>{
+        section.classList.remove('active');
+    });
+
+    document.getElementById(id).classList.add('active');
+}
+</script>
+
+</body>
+</html>
