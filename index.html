@@ -92,6 +92,26 @@ button:hover{
 .match-line{
     font-size:18px;
     font-weight:bold;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    gap:8px;
+    flex-wrap:wrap;
+}
+
+.team-name{
+    min-width:110px;
+    text-align:center;
+}
+
+.score{
+    font-size:20px;
+    font-weight:bold;
+    white-space:nowrap;
+}
+
+.result-row{
+    margin-top:10px;
 }
 
 .result-badge{
@@ -279,12 +299,18 @@ async function loadLastMatches(){
         div.className = "match-item " + getCompetitionClass(match.competition);
 
         div.innerHTML = `
-            <div><b>${match.competition}</b></div>
-            <div class="match-line">
-                ${match.home_team} ${match.home_score} - ${match.away_score} ${match.away_team}
-                <span class="result-badge result-${match.result}">${match.result}</span>
-            </div>
-        `;
+    <div><b>${match.competition}</b></div>
+
+    <div class="match-line">
+        <span class="team-name">${match.home_team}</span>
+        <span class="score">${match.home_score} - ${match.away_score}</span>
+        <span class="team-name">${match.away_team}</span>
+    </div>
+
+    <div class="result-row">
+        <span class="result-badge result-${match.result}">${match.result}</span>
+    </div>
+`;
 
         container.appendChild(div);
     });
