@@ -28,7 +28,7 @@ header{
     box-shadow:0 0 20px rgba(0,0,0,0.35);
 }
 
-input, textarea{
+input, select{
     width:90%;
     max-width:420px;
     padding:13px;
@@ -36,11 +36,6 @@ input, textarea{
     border-radius:12px;
     border:none;
     font-size:16px;
-}
-
-textarea{
-    height:100px;
-    resize:none;
 }
 
 button{
@@ -64,6 +59,14 @@ button:hover{
     color:#00d9ff;
     font-weight:bold;
 }
+
+.match-row{
+    background:rgba(0,0,0,0.3);
+    border-radius:15px;
+    padding:12px;
+    margin:10px auto;
+    max-width:500px;
+}
 </style>
 </head>
 
@@ -72,19 +75,58 @@ button:hover{
 <header>🛠️ Panel admina Anto FC</header>
 
 <div class="card">
-    <h2>Centrum meczu</h2>
+    <h2>⚔️ Następny mecz</h2>
 
-    <input id="opponent" placeholder="Rywal">
-    <input id="status" placeholder="Status, np. Dzisiaj 19:00">
-    <input id="arena" placeholder="Arena">
-    <input id="mode" placeholder="Tryb, np. 2v2">
-    <textarea id="comment" placeholder="Komentarz przedmeczowy"></textarea>
+    <select id="next-competition">
+        <option>RL Ekstraklasa</option>
+        <option>Puchar Polski</option>
+        <option>Liga Konferencji</option>
+        <option>Liga Europy</option>
+        <option>Liga Mistrzów</option>
+    </select>
+
+    <input id="next-home" placeholder="Gospodarz">
+    <input id="next-away" placeholder="Goście">
+    <input id="next-date" placeholder="Data/godzina, np. Sobota 19:00">
+    <input id="next-status" placeholder="Status, np. Nadchodzący mecz">
 
     <br>
-    <button onclick="saveMatch()">Zapisz</button>
-    <button onclick="loadMatch()">Odśwież dane</button>
+    <button onclick="saveNextMatch()">Zapisz następny mecz</button>
+    <p id="next-status-info" class="status"></p>
+</div>
 
-    <p id="save-status" class="status"></p>
+<div class="card">
+    <h2>📋 Dodaj ostatni mecz</h2>
+
+    <select id="last-competition">
+        <option>RL Ekstraklasa</option>
+        <option>Puchar Polski</option>
+        <option>Liga Konferencji</option>
+        <option>Liga Europy</option>
+        <option>Liga Mistrzów</option>
+    </select>
+
+    <input id="last-home" placeholder="Gospodarz">
+    <input id="last-away" placeholder="Goście">
+    <input id="last-home-score" type="number" placeholder="Gole gospodarza">
+    <input id="last-away-score" type="number" placeholder="Gole gości">
+
+    <select id="last-result">
+        <option value="W">W - wygrana Anto FC</option>
+        <option value="D">D - remis</option>
+        <option value="L">L - porażka Anto FC</option>
+    </select>
+
+    <br>
+    <button onclick="addLastMatch()">Dodaj mecz</button>
+    <button onclick="clearLastMatches()">Wyczyść ostatnie mecze</button>
+
+    <p id="last-status-info" class="status"></p>
+</div>
+
+<div class="card">
+    <h2>🕘 Aktualne 5 ostatnich meczów</h2>
+    <div id="last-matches-list"></div>
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -95,57 +137,119 @@ const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBh
 
 const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-async function loadMatch(){
+async function loadNextMatch(){
     const { data, error } = await supabaseClient
-        .from("match_center")
+        .from("next_match")
         .select("*")
         .eq("id", 1)
         .single();
 
     if(error){
-        document.getElementById("save-status").innerText = "Błąd pobierania danych";
+        document.getElementById("next-status-info").innerText = "Błąd pobierania następnego meczu";
         console.log(error);
         return;
     }
 
-    document.getElementById("opponent").value = data.opponent;
-    document.getElementById("status").value = data.match_status;
-    document.getElementById("arena").value = data.arena;
-    document.getElementById("mode").value = data.match_mode;
-    document.getElementById("comment").value = data.match_comment;
-
-    document.getElementById("save-status").innerText = "Dane załadowane";
+    document.getElementById("next-competition").value = data.competition;
+    document.getElementById("next-home").value = data.home_team;
+    document.getElementById("next-away").value = data.away_team;
+    document.getElementById("next-date").value = data.match_date || "";
+    document.getElementById("next-status").value = data.status || "";
 }
 
-async function saveMatch(){
-    const opponent = document.getElementById("opponent").value;
-    const status = document.getElementById("status").value;
-    const arena = document.getElementById("arena").value;
-    const mode = document.getElementById("mode").value;
-    const comment = document.getElementById("comment").value;
-
+async function saveNextMatch(){
     const { error } = await supabaseClient
-        .from("match_center")
+        .from("next_match")
         .update({
-            opponent: opponent,
-            match_status: status,
-            arena: arena,
-            match_mode: mode,
-            match_comment: comment
+            competition: document.getElementById("next-competition").value,
+            home_team: document.getElementById("next-home").value,
+            away_team: document.getElementById("next-away").value,
+            match_date: document.getElementById("next-date").value,
+            status: document.getElementById("next-status").value
         })
         .eq("id", 1);
 
     if(error){
-        document.getElementById("save-status").innerText = "Błąd zapisu";
+        document.getElementById("next-status-info").innerText = "Błąd zapisu";
         console.log(error);
         return;
     }
 
-    document.getElementById("save-status").innerText = "Zapisano!";
+    document.getElementById("next-status-info").innerText = "Zapisano następny mecz!";
 }
 
-loadMatch();
+async function addLastMatch(){
+    const { error } = await supabaseClient
+        .from("last_matches")
+        .insert({
+            competition: document.getElementById("last-competition").value,
+            home_team: document.getElementById("last-home").value,
+            away_team: document.getElementById("last-away").value,
+            home_score: Number(document.getElementById("last-home-score").value),
+            away_score: Number(document.getElementById("last-away-score").value),
+            result: document.getElementById("last-result").value
+        });
+
+    if(error){
+        document.getElementById("last-status-info").innerText = "Błąd dodawania meczu";
+        console.log(error);
+        return;
+    }
+
+    document.getElementById("last-status-info").innerText = "Dodano mecz!";
+    loadLastMatches();
+}
+
+async function clearLastMatches(){
+    const confirmClear = confirm("Na pewno usunąć wszystkie ostatnie mecze?");
+    if(!confirmClear) return;
+
+    const { error } = await supabaseClient
+        .from("last_matches")
+        .delete()
+        .neq("id", 0);
+
+    if(error){
+        document.getElementById("last-status-info").innerText = "Błąd czyszczenia";
+        console.log(error);
+        return;
+    }
+
+    document.getElementById("last-status-info").innerText = "Wyczyszczono mecze";
+    loadLastMatches();
+}
+
+async function loadLastMatches(){
+    const { data, error } = await supabaseClient
+        .from("last_matches")
+        .select("*")
+        .order("created_at", { ascending: false })
+        .limit(5);
+
+    if(error){
+        console.log(error);
+        return;
+    }
+
+    const list = document.getElementById("last-matches-list");
+    list.innerHTML = "";
+
+    data.forEach(match => {
+        const div = document.createElement("div");
+        div.className = "match-row";
+        div.innerHTML = `
+            <b>${match.competition}</b><br>
+            ${match.home_team} ${match.home_score} - ${match.away_score} ${match.away_team}
+            <br>
+            Wynik Anto FC: ${match.result}
+        `;
+        list.appendChild(div);
+    });
+}
+
+loadNextMatch();
+loadLastMatches();
 </script>
 
 </body>
-  </html>
+</html>
