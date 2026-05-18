@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Panel admina - Anto FC</title>
+
+<style>
+body{
+    margin:0;
+    font-family:Arial, sans-serif;
+    background:linear-gradient(180deg,#120024,#1b0033,#050510);
+    color:white;
+    text-align:center;
+}
+
+header{
+    padding:25px;
+    font-size:32px;
+    font-weight:bold;
+}
+
+.card{
+    background:rgba(255,255,255,0.08);
+    border-radius:22px;
+    padding:20px;
+    margin:20px;
+    box-shadow:0 0 20px rgba(0,0,0,0.35);
+}
+
+input, textarea{
+    width:90%;
+    max-width:420px;
+    padding:13px;
+    margin:9px;
+    border-radius:12px;
+    border:none;
+    font-size:16px;
+}
+
+textarea{
+    height:100px;
+    resize:none;
+}
+
+button{
+    background:#ff7b00;
+    color:white;
+    border:none;
+    padding:13px 22px;
+    border-radius:15px;
+    margin:10px;
+    font-size:16px;
+    font-weight:bold;
+    cursor:pointer;
+}
+
+button:hover{
+    background:#ff9500;
+}
+
+.status{
+    margin-top:15px;
+    color:#00d9ff;
+    font-weight:bold;
+}
+</style>
+</head>
+
+<body>
+
+<header>🛠️ Panel admina Anto FC</header>
+
+<div class="card">
+    <h2>Centrum meczu</h2>
+
+    <input id="opponent" placeholder="Rywal">
+    <input id="status" placeholder="Status, np. Dzisiaj 19:00">
+    <input id="arena" placeholder="Arena">
+    <input id="mode" placeholder="Tryb, np. 2v2">
+    <textarea id="comment" placeholder="Komentarz przedmeczowy"></textarea>
+
+    <br>
+    <button onclick="saveMatch()">Zapisz</button>
+    <button onclick="loadMatch()">Odśwież dane</button>
+
+    <p id="save-status" class="status"></p>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+<script>
+const SUPABASE_URL = "https://vunmvvamkcvjiolzxlny.supabase.co";
+const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZ1bm12dmFta2N2amlvbHp4bG55Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzkwNzIyMTgsImV4cCI6MjA5NDY0ODIxOH0.exsfAN_sKGVxpI6sKJuAmYi6N1NyyJkFztvHUrdXVSU";
+
+const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+async function loadMatch(){
+    const { data, error } = await supabaseClient
+        .from("match_center")
+        .select("*")
+        .eq("id", 1)
+        .single();
+
+    if(error){
+        document.getElementById("save-status").innerText = "Błąd pobierania danych";
+        console.log(error);
+        return;
+    }
+
+    document.getElementById("opponent").value = data.opponent;
+    document.getElementById("status").value = data.match_status;
+    document.getElementById("arena").value = data.arena;
+    document.getElementById("mode").value = data.match_mode;
+    document.getElementById("comment").value = data.match_comment;
+
+    document.getElementById("save-status").innerText = "Dane załadowane";
+}
+
+async function saveMatch(){
+    const opponent = document.getElementById("opponent").value;
+    const status = document.getElementById("status").value;
+    const arena = document.getElementById("arena").value;
+    const mode = document.getElementById("mode").value;
+    const comment = document.getElementById("comment").value;
+
+    const { error } = await supabaseClient
+        .from("match_center")
+        .update({
+            opponent: opponent,
+            match_status: status,
+            arena: arena,
+            match_mode: mode,
+            match_comment: comment
+        })
+        .eq("id", 1);
+
+    if(error){
+        document.getElementById("save-status").innerText = "Błąd zapisu";
+        console.log(error);
+        return;
+    }
+
+    document.getElementById("save-status").innerText = "Zapisano!";
+}
+
+loadMatch();
+</script>
+
+</body>
+  </html>
